@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>たのしい！とけい マスター ✨ - 時計の読み方学習アプリ</title>
-    <!-- Tailwind CSS -->
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Google Fonts for friendly Japanese typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +32,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
 
     <style>
@@ -63,16 +65,7 @@
             50% { transform: translateY(-6px); }
         }
 
-        .pop-in {
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Canvas Overlay for Confetti */
+        /* Canvas Overlay for Confetti Particles */
         #confettiCanvas {
             position: fixed;
             top: 0;
@@ -86,10 +79,8 @@
 </head>
 <body class="text-slate-800 antialiased flex flex-col min-h-screen pb-10">
 
-    <!-- Confetti Overlay -->
     <canvas id="confettiCanvas"></canvas>
 
-    <!-- Header Navigation Bar -->
     <header class="bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm border-b border-sky-100 px-4 py-3">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -126,7 +117,6 @@
 
     <main class="max-w-4xl mx-auto w-full px-4 pt-4 flex-grow flex flex-col">
         
-        <!-- Mode Navigation Tabs -->
         <nav class="grid grid-cols-4 gap-1 sm:gap-3 bg-white p-1.5 rounded-2xl shadow-md border border-slate-100 mb-4">
             <button onclick="switchTab('explore')" id="tab-explore" class="tab-btn py-2.5 px-2 rounded-xl text-center font-bold text-xs sm:text-sm transition flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-1 bg-sky-500 text-white shadow-sm">
                 <span class="text-lg">🎨</span>
@@ -149,10 +139,9 @@
             </button>
         </nav>
 
-        <!-- Central Interactive Clock Card -->
         <div class="bg-white rounded-3xl shadow-xl p-4 sm:p-6 border border-sky-100 flex flex-col items-center relative overflow-hidden">
             
-            <!-- Mascot Bubble / Prompt Header -->
+            <!-- Mascot / Prompt Header -->
             <div id="promptBox" class="w-full bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 mb-4 text-center relative transition-all">
                 <div class="flex items-center justify-center space-x-2">
                     <span id="mascotIcon" class="text-2xl bounce-gentle">🦉</span>
@@ -160,15 +149,14 @@
                         はりを ひっぱって じかんを かえてみよう！
                     </span>
                 </div>
-                <!-- Pronunciation Hiragana Subtitle -->
+                <!-- Hiragana Reading Subtitle -->
                 <div id="hiraganaReading" class="text-sky-700 font-bold text-sm mt-1">
-                    さんじ ちょうど
+                    ごぜん さんじ ちょうど（3じ ちょうど）
                 </div>
             </div>
 
             <div class="w-full flex flex-col md:flex-row items-center justify-around gap-6 my-2">
                 
-                <!-- Analog SVG Clock Container -->
                 <div class="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 flex-shrink-0 touch-none">
                     
                     <!-- Hand Legend Guide -->
@@ -185,10 +173,6 @@
 
                     <svg id="clockSvg" class="w-full h-full clock-shadow overflow-visible" viewBox="0 0 400 400">
                         <defs>
-                            <!-- Drop Shadows -->
-                            <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-                                <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.2"/>
-                            </filter>
                             <filter id="handShadow" x="-20%" y="-20%" width="140%" height="140%">
                                 <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
                             </filter>
@@ -199,17 +183,20 @@
                         <circle cx="200" cy="200" r="182" fill="#FAF5FF" />
                         <circle cx="200" cy="200" r="176" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" />
 
-                        <!-- Hour Sectors (Color Zones background - Toggleable) -->
+                        <!-- Hour Sectors (Color Zones background) -->
                         <g id="hourSectors" class="transition-opacity duration-300 opacity-100"></g>
 
                         <!-- Minute Tick Marks (60 dots/lines) -->
                         <g id="minuteTicks"></g>
 
-                        <!-- Minute Helper Numbers (0, 5, 10... 55 Outer Ring - Toggleable) -->
+                        <!-- Minute Helper Numbers (0, 5, 10... 55) -->
                         <g id="minuteNumbersGroup" class="transition-opacity duration-300 opacity-100"></g>
 
                         <!-- Hour Numbers (1 to 12) -->
                         <g id="hourNumbersGroup"></g>
+
+                        <!-- 24-Hour Helper Numbers (13 to 24) -->
+                        <g id="hour24NumbersGroup" class="transition-opacity duration-300 opacity-100"></g>
 
                         <!-- Hands Layer -->
                         <!-- Hour Hand (Short / Red) -->
@@ -232,14 +219,31 @@
                     </svg>
                 </div>
 
-                <!-- Side Control & Digital Time Display Panel -->
                 <div class="flex flex-col items-center justify-center space-y-4 w-full max-w-xs">
                     
-                    <!-- Digital Clock Display Card -->
-                    <div class="bg-slate-900 text-white px-6 py-4 rounded-3xl shadow-lg border-4 border-slate-700 flex flex-col items-center w-full relative">
-                        <div class="text-xs font-bold text-sky-400 tracking-wider mb-1">でじたる とけい</div>
+                    <!-- AM / PM Switcher -->
+                    <div class="flex items-center justify-center space-x-2 w-full">
+                        <button id="amBtn" onclick="setAmPm(false)" class="flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-amber-400 border-amber-500 text-amber-950 shadow-md scale-105">
+                            <span>☀️</span>
+                            <span>ごぜん (AM)</span>
+                        </button>
+                        <button id="pmBtn" onclick="setAmPm(true)" class="flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-slate-100 border-slate-300 text-slate-500 opacity-70">
+                            <span>🌙</span>
+                            <span>ごご (PM)</span>
+                        </button>
+                    </div>
+
+                    <!-- Digital Clock Display -->
+                    <div id="digitalCard" class="bg-slate-900 text-white px-6 py-4 rounded-3xl shadow-lg border-4 border-slate-700 flex flex-col items-center w-full relative transition-all duration-300">
+                        <div class="text-xs font-bold text-sky-400 tracking-wider mb-1 flex items-center space-x-1.5">
+                            <span id="digitalAmPmBadge" class="bg-amber-400 text-amber-950 text-[10px] px-2 py-0.5 rounded-full font-extrabold">☀️ ごぜん</span>
+                            <span>でじたる とけい</span>
+                        </div>
                         <div id="digitalDisplay" class="text-4xl sm:text-5xl font-black font-mono tracking-widest text-emerald-400">
                             03:00
+                        </div>
+                        <div id="digital24Sub" class="text-xs font-extrabold text-amber-300 mt-1">
+                            24じかん: 03:00
                         </div>
                         <button onclick="speakCurrentTime()" class="mt-2 bg-slate-800 hover:bg-slate-700 text-xs text-sky-300 px-3 py-1 rounded-full border border-slate-600 transition flex items-center space-x-1">
                             <span>🔊</span>
@@ -247,11 +251,10 @@
                         </button>
                     </div>
 
-                    <!-- Visual Assistance Toggles -->
+                    <!-- Assistance Toggles -->
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 w-full space-y-2 text-xs sm:text-sm font-bold text-slate-700">
                         <div class="text-slate-500 text-xs font-extrabold border-b pb-1 mb-1">たすけになる ひんと</div>
                         
-                        <!-- Toggle 1: Minute Numbers -->
                         <label class="flex items-center justify-between cursor-pointer hover:bg-white p-1.5 rounded-xl transition">
                             <span class="flex items-center">
                                 <span class="text-base mr-1.5">🔢</span>
@@ -260,7 +263,6 @@
                             <input type="checkbox" id="toggleMinuteNums" checked onchange="updateClockVisuals()" class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
                         </label>
 
-                        <!-- Toggle 2: Hour Color Zones -->
                         <label class="flex items-center justify-between cursor-pointer hover:bg-white p-1.5 rounded-xl transition">
                             <span class="flex items-center">
                                 <span class="text-base mr-1.5">🎨</span>
@@ -268,21 +270,29 @@
                             </span>
                             <input type="checkbox" id="toggleColorZones" checked onchange="updateClockVisuals()" class="w-4 h-4 accent-sky-500 rounded cursor-pointer">
                         </label>
+
+                        <label class="flex items-center justify-between cursor-pointer hover:bg-white p-1.5 rounded-xl transition">
+                            <span class="flex items-center">
+                                <span class="text-base mr-1.5">🌞</span>
+                                24じかんの すうじ (13〜24)
+                            </span>
+                            <input type="checkbox" id="toggle24HourNums" checked onchange="updateClockVisuals()" class="w-4 h-4 accent-purple-600 rounded cursor-pointer">
+                        </label>
                     </div>
 
-                    <!-- Quick Time Preset Buttons (For Explore mode) -->
+                    <!-- Quick Preset Buttons -->
                     <div id="quickPresetPanel" class="w-full">
                         <div class="text-xs font-bold text-slate-500 mb-1">かんたん せってい:</div>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            <button onclick="setClockTime(7, 0)" class="bg-sky-50 hover:bg-sky-100 text-sky-700 py-1.5 rounded-xl font-bold text-xs border border-sky-200">7:00</button>
-                            <button onclick="setClockTime(12, 0)" class="bg-sky-50 hover:bg-sky-100 text-sky-700 py-1.5 rounded-xl font-bold text-xs border border-sky-200">12:00</button>
-                            <button onclick="setClockTime(3, 30)" class="bg-sky-50 hover:bg-sky-100 text-sky-700 py-1.5 rounded-xl font-bold text-xs border border-sky-200">3:30</button>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="setClockTime(7, 0, false)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 py-1.5 rounded-xl font-bold text-xs border border-amber-200">☀️ あさ 7:00</button>
+                            <button onclick="setClockTime(12, 0, false)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 py-1.5 rounded-xl font-bold text-xs border border-amber-200">☀️ ひる 12:00</button>
+                            <button onclick="setClockTime(3, 0, true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 py-1.5 rounded-xl font-bold text-xs border border-indigo-200">🌙 15:00 (午後3時)</button>
+                            <button onclick="setClockTime(7, 30, true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 py-1.5 rounded-xl font-bold text-xs border border-indigo-200">🌙 19:30 (午後7時半)</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Game Mode Action Controls (Dynamic depending on Tab) -->
             <div id="gameControlsArea" class="w-full mt-4 pt-4 border-t border-slate-100">
                 
                 <!-- Match Mode Controls -->
@@ -291,8 +301,8 @@
                         <span class="text-xs font-bold text-slate-500">むずかしさ:</span>
                         <div class="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-bold">
                             <button onclick="setMatchDifficulty('easy')" id="diff-easy" class="px-3 py-1 rounded-lg bg-white shadow-sm text-sky-600">かんたん (ちょうど)</button>
-                            <button onclick="setMatchDifficulty('medium')" id="diff-medium" class="px-3 py-1 rounded-lg text-slate-600">ふつう (30ふん/15ふん)</button>
-                            <button onclick="setMatchDifficulty('hard')" id="diff-hard" class="px-3 py-1 rounded-lg text-slate-600">むずかしい (5ふんきざみ)</button>
+                            <button onclick="setMatchDifficulty('medium')" id="diff-medium" class="px-3 py-1 rounded-lg text-slate-600">ふつう (15ふん)</button>
+                            <button onclick="setMatchDifficulty('hard')" id="diff-hard" class="px-3 py-1 rounded-lg text-slate-600">むずかしい (5ふん)</button>
                         </div>
                     </div>
 
@@ -302,23 +312,19 @@
                     </button>
                 </div>
 
-                <!-- Quiz Mode Choices Grid -->
+                <!-- Quiz Mode Options -->
                 <div id="quizControls" class="hidden flex-col items-center space-y-3">
                     <div class="text-xs font-bold text-slate-500">とけいの じかんを えらんでね！</div>
-                    <div id="quizOptionsGrid" class="grid grid-cols-2 gap-3 w-full max-w-md">
-                        <!-- Options injected dynamically by JS -->
-                    </div>
+                    <div id="quizOptionsGrid" class="grid grid-cols-2 gap-3 w-full max-w-md"></div>
                 </div>
 
-                <!-- Reward Stamp Book Area -->
+                <!-- Reward Stamp Book -->
                 <div id="rewardsArea" class="hidden flex-col items-center w-full">
                     <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center">
                         <span class="mr-2">🎨</span> ごほうび スタンプちょう
                     </h3>
                     <p class="text-xs text-slate-500 mb-4">もんだいに せいかいして ★ をあつめると スタンプがもらえるよ！</p>
-                    <div id="stampsGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-3 w-full">
-                        <!-- Stamps rendered dynamically -->
-                    </div>
+                    <div id="stampsGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-3 w-full"></div>
                 </div>
 
             </div>
@@ -326,7 +332,42 @@
     </main>
 
     <script>
-        /* Web Audio Sound Synthesizer (No external audio file dependency) */
+        let voiceEnabled = true;
+        let currentTab = 'explore';
+        let totalMinutes = 3 * 60; // 24時間の通算分 (0〜1439分)
+        let currentHours = 3;
+        let currentMinutes = 0;
+        let isPM = false;
+        let prevDragAngle = 0;
+        let starCount = 0;
+
+        let matchDifficulty = 'easy';
+        let targetHours = 7;
+        let targetMinutes = 0;
+        let targetIsPM = false;
+
+        let quizTargetHours = 9;
+        let quizTargetMinutes = 0;
+        let quizTargetIsPM = false;
+
+        let isDraggingHour = false;
+        let isDraggingMinute = false;
+
+        const stamps = [
+            { id: 1, emoji: '🐱', name: 'ねこちゃん', cost: 1, unlocked: false },
+            { id: 2, emoji: '🐶', name: 'いぬくん', cost: 2, unlocked: false },
+            { id: 3, emoji: '🚀', name: 'ロケット', cost: 3, unlocked: false },
+            { id: 4, emoji: '🦄', name: 'ユニコーン', cost: 5, unlocked: false },
+            { id: 5, emoji: '🍰', name: 'ケーキ', cost: 7, unlocked: false },
+            { id: 6, emoji: '👑', name: 'おうかん', cost: 10, unlocked: false },
+            { id: 7, emoji: '🌈', name: 'にじ', cost: 12, unlocked: false },
+            { id: 8, emoji: '🤖', name: 'ロボット', cost: 15, unlocked: false },
+            { id: 9, emoji: '🐼', name: 'パンダ', cost: 20, unlocked: false },
+            { id: 10, emoji: '🦕', name: 'きょうりゅう', cost: 25, unlocked: false },
+            { id: 11, emoji: '🛸', name: 'UFO', cost: 30, unlocked: false },
+            { id: 12, emoji: '🏆', name: 'とけい はかせ', cost: 40, unlocked: false }
+        ];
+
         const SoundEngine = {
             ctx: null,
             enabled: true,
@@ -366,7 +407,7 @@
                 this.init();
                 if (!this.ctx) return;
 
-                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                const notes = [523.25, 659.25, 783.99, 1046.50];
                 notes.forEach((freq, idx) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -405,11 +446,7 @@
             }
         };
 
-        /**
-         * Returns Japanese hiragana reading for given hours & minutes
-         * Accurate Japanese time pronunciation rules
-         */
-        function getTimeInHiragana(hours, minutes) {
+        function getTimeInHiragana(hours, minutes, pm = isPM) {
             const hourPronunciations = {
                 1: 'いちじ', 2: 'にじ', 3: 'さんじ', 4: 'よじ', 5: 'ごじ',
                 6: 'ろくじ', 7: 'しちじ', 8: 'はちじ', 9: 'くじ', 10: 'じゅうじ',
@@ -420,16 +457,15 @@
             if (h === 0) h = 12;
 
             const hourText = hourPronunciations[h] || `${h}じ`;
+            const amPmStr = pm ? 'ごご' : 'ごぜん';
 
-            if (minutes === 0) {
-                return `${hourText} ちょうど`;
+            let h24 = hours;
+            if (pm) {
+                h24 = hours === 12 ? 12 : hours + 12;
+            } else {
+                h24 = hours === 12 ? 0 : hours;
             }
 
-            if (minutes === 30) {
-                return `${hourText} はん`;
-            }
-
-            // Minute reading helper
             function getMinuteReading(m) {
                 const tens = Math.floor(m / 10);
                 const ones = m % 10;
@@ -455,74 +491,48 @@
                 return tensStr + onesUnits[ones];
             }
 
-            return `${hourText} ${getMinuteReading(minutes)}`;
-        }
+            let minStr = '';
+            if (minutes === 0) minStr = 'ちょうど';
+            else if (minutes === 30) minStr = 'はん';
+            else minStr = getMinuteReading(minutes);
 
-        /* Speech Synthesis Engine */
-        let voiceEnabled = true;
+            return `${amPmStr} ${hourText} ${minStr}（${h24}じ ${minStr}）`;
+        }
 
         function speakCurrentTime(customText) {
             if (!voiceEnabled || !('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel(); // Stop any pending speech
+            window.speechSynthesis.cancel();
 
             let textToSpeak = customText;
             if (!textToSpeak) {
                 if (currentTab === 'quiz') {
                     textToSpeak = 'とけいを よく みて、なんじか えらんでね！';
                 } else {
-                    textToSpeak = getTimeInHiragana(currentHours, currentMinutes);
+                    let h24 = isPM ? (currentHours === 12 ? 12 : currentHours + 12) : (currentHours === 12 ? 0 : currentHours);
+                    let h12Name = getTimeInHiragana(currentHours, currentMinutes, isPM).split('（')[0];
+                    textToSpeak = `${h12Name}。24時間表記では ${h24}時 です。`;
                 }
             }
 
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'ja-JP';
-            utterance.rate = 0.9; // Slightly slower for kids
-            utterance.pitch = 1.1; // Friendly higher pitch
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
             window.speechSynthesis.speak(utterance);
         }
 
-        /* App Global State */
-        let currentTab = 'explore'; // 'explore', 'match', 'quiz', 'rewards'
-        let currentHours = 3;
-        let currentMinutes = 0;
-        let starCount = 0;
-        let soundEnabled = true;
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            document.getElementById('voiceIcon').textContent = voiceEnabled ? '🔊' : '🔇';
+            document.getElementById('voiceToggleBtn').classList.toggle('opacity-50', !voiceEnabled);
+        }
 
-        // Match Game State
-        let matchDifficulty = 'easy'; // 'easy', 'medium', 'hard'
-        let targetHours = 7;
-        let targetMinutes = 0;
+        function toggleSound() {
+            SoundEngine.enabled = !SoundEngine.enabled;
+            document.getElementById('soundIcon').textContent = SoundEngine.enabled ? '🎵' : '🔇';
+            document.getElementById('soundToggleBtn').classList.toggle('opacity-50', !SoundEngine.enabled);
+        }
 
-        // Quiz Game State
-        let quizTargetHours = 9;
-        let quizTargetMinutes = 0;
-
-        // Stamp Rewards Collection
-        const stamps = [
-            { id: 1, emoji: '🐱', name: 'ねこちゃん', cost: 1, unlocked: false },
-            { id: 2, emoji: '🐶', name: 'いぬくん', cost: 2, unlocked: false },
-            { id: 3, emoji: '🚀', name: 'ロケット', cost: 3, unlocked: false },
-            { id: 4, emoji: '🦄', name: 'ユニコーン', cost: 5, unlocked: false },
-            { id: 5, emoji: '🍰', name: 'ケーキ', cost: 7, unlocked: false },
-            { id: 6, emoji: '👑', name: 'おうかん', cost: 10, unlocked: false },
-            { id: 7, emoji: '🌈', name: 'にじ', cost: 12, unlocked: false },
-            { id: 8, emoji: '🤖', name: 'ロボット', cost: 15, unlocked: false },
-            { id: 9, emoji: '🐼', name: 'パンダ', cost: 20, unlocked: false },
-            { id: 10, emoji: '🦕', name: 'きょうりゅう', cost: 25, unlocked: false },
-            { id: 11, emoji: '🛸', name: 'UFO', cost: 30, unlocked: false },
-            { id: 12, emoji: '🏆', name: 'とけい はかせ', cost: 40, unlocked: false }
-        ];
-
-        /* SVG Clock Construction & Rendering */
-        const clockSvg = document.getElementById('clockSvg');
-        const hourSectorsG = document.getElementById('hourSectors');
-        const minuteTicksG = document.getElementById('minuteTicks');
-        const minuteNumbersG = document.getElementById('minuteNumbersGroup');
-        const hourNumbersG = document.getElementById('hourNumbersGroup');
-        const hourHandGroup = document.getElementById('hourHandGroup');
-        const minuteHandGroup = document.getElementById('minuteHandGroup');
-
-        // Color Palette for Hour Sectors
         const sectorColors = [
             '#FFE5EC', '#FFD6A5', '#FDFFB6', '#CAFFBF', 
             '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF',
@@ -533,7 +543,15 @@
             const center = 200;
             const radius = 175;
 
-            // 1. Draw Hour Color Sectors (12 Pie Slices)
+            const hourSectorsG = document.getElementById('hourSectors');
+            const minuteTicksG = document.getElementById('minuteTicks');
+            const minuteNumbersG = document.getElementById('minuteNumbersGroup');
+            const hourNumbersG = document.getElementById('hourNumbersGroup');
+            const hour24NumbersG = document.getElementById('hour24NumbersGroup');
+
+            if (!hourSectorsG) return;
+
+            // 1. Hour Sectors
             hourSectorsG.innerHTML = '';
             for (let i = 0; i < 12; i++) {
                 const startAngle = (i * 30 - 90) * (Math.PI / 180);
@@ -553,7 +571,7 @@
                 hourSectorsG.appendChild(path);
             }
 
-            // 2. Draw Minute Ticks & Numbers
+            // 2. Minute Ticks & Numbers
             minuteTicksG.innerHTML = '';
             minuteNumbersG.innerHTML = '';
 
@@ -578,7 +596,6 @@
                 line.setAttribute('stroke-width', isMajor ? '3' : '1.5');
                 minuteTicksG.appendChild(line);
 
-                // Minute Labels (0, 5, 10, ... 55)
                 if (isMajor) {
                     const rText = 152;
                     const tx = center + rText * Math.cos(angle);
@@ -596,7 +613,7 @@
                 }
             }
 
-            // 3. Draw Big Hour Numbers (1 - 12)
+            // 3. Hour Main Numbers (1-12)
             hourNumbersG.innerHTML = '';
             for (let h = 1; h <= 12; h++) {
                 const angle = (h * 30 - 90) * (Math.PI / 180);
@@ -614,186 +631,202 @@
                 text.textContent = h;
                 hourNumbersG.appendChild(text);
             }
-        }
 
-        /**
-         * Updates the visual rotation of the hands & text output
-         */
-        function updateClockDisplay() {
-            // Minute Hand Rotation (360 degrees = 60 minutes)
-            const minuteDeg = currentMinutes * 6;
-            
-            // Hour Hand Rotation (360 degrees = 12 hours -> 30 deg per hour + 0.5 deg per minute)
-            const hourDeg = ((currentHours % 12) * 30) + (currentMinutes * 0.5);
+            // 4. 24-Hour Helper Numbers (13-24)
+            hour24NumbersG.innerHTML = '';
+            for (let h = 1; h <= 12; h++) {
+                const angle = (h * 30 - 90) * (Math.PI / 180);
+                const rNum24 = 88;
+                const nx = center + rNum24 * Math.cos(angle);
+                const ny = center + rNum24 * Math.sin(angle);
 
-            minuteHandGroup.setAttribute('transform', `rotate(${minuteDeg}, 200, 200)`);
-            hourHandGroup.setAttribute('transform', `rotate(${hourDeg}, 200, 200)`);
+                const h24 = h === 12 ? 24 : h + 12;
 
-            const digitalEl = document.getElementById('digitalDisplay');
-            const hiraEl = document.getElementById('hiraganaReading');
-
-            if (currentTab === 'quiz') {
-                // クイズモードではデジタル表示と読みに答えを出さない
-                digitalEl.textContent = '??:??';
-                hiraEl.textContent = 'とけいを よく みてね！';
-            } else {
-                // Format Digital Display (03:05)
-                const formattedH = String(currentHours).padStart(2, '0');
-                const formattedM = String(currentMinutes).padStart(2, '0');
-                digitalEl.textContent = `${formattedH}:${formattedM}`;
-                hiraEl.textContent = getTimeInHiragana(currentHours, currentMinutes);
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', nx);
+                text.setAttribute('y', ny + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '13');
+                text.setAttribute('font-weight', '800');
+                text.setAttribute('fill', '#8338EC');
+                text.textContent = h24;
+                hour24NumbersG.appendChild(text);
             }
         }
 
-        function updateClockVisuals() {
-            const showMin = document.getElementById('toggleMinuteNums').checked;
-            const showZones = document.getElementById('toggleColorZones').checked;
-
-            minuteNumbersG.style.opacity = showMin ? '1' : '0';
-            hourSectorsG.style.opacity = showZones ? '0.65' : '0';
-        }
-
-        function setClockTime(hours, minutes) {
-            currentHours = hours;
-            currentMinutes = minutes;
-            updateClockDisplay();
-            SoundEngine.playTick();
-        }
-
-        /* Drag and Touch Mechanics for Clock Hands */
-        let activeDraggingHand = null; // 'minute' or 'hour'
-
-        function getAngleFromPointer(e) {
-            const rect = clockSvg.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            const x = clientX - (rect.left + rect.width / 2);
-            const y = clientY - (rect.top + rect.height / 2);
-
-            let rad = Math.atan2(y, x) + (Math.PI / 2);
-            if (rad < 0) rad += 2 * Math.PI;
-
-            return rad * (180 / Math.PI); // Angle in degrees (0..360)
-        }
-
-        function startDrag(e, handType) {
-            if (currentTab === 'quiz') return; // In Quiz mode, hands are fixed
-            e.preventDefault();
-            activeDraggingHand = handType;
-            SoundEngine.playTick();
-        }
-
-        function handleDragMove(e) {
-            if (!activeDraggingHand) return;
-            e.preventDefault();
-
-            const angle = getAngleFromPointer(e);
-
-            if (activeDraggingHand === 'minute') {
-                // Minute hand movement
-                let newMin = Math.round(angle / 6) % 60;
-                if (newMin < 0) newMin += 60;
-
-                // Handle continuous hour wrapping when crossing 12 o'clock
-                if (currentMinutes >= 50 && newMin <= 10) {
-                    currentHours = (currentHours % 12) + 1;
-                } else if (currentMinutes <= 10 && newMin >= 50) {
-                    currentHours = currentHours - 1 <= 0 ? 12 : currentHours - 1;
-                }
-
-                if (newMin !== currentMinutes) {
-                    currentMinutes = newMin;
-                    SoundEngine.playTick();
-                }
-            } else if (activeDraggingHand === 'hour') {
-                // Hour hand movement
-                let h = Math.floor(angle / 30);
-                if (h === 0) h = 12;
-
-                if (h !== currentHours) {
-                    currentHours = h;
-                    SoundEngine.playTick();
-                }
-            }
-
-            updateClockDisplay();
-        }
-
-        function stopDrag() {
-            if (activeDraggingHand) {
-                activeDraggingHand = null;
+        function setAmPm(pm) {
+            if (isPM !== pm) {
+                let h12 = currentHours % 12;
+                totalMinutes = (pm ? h12 + 12 : h12) * 60 + currentMinutes;
+                syncFromTotalMinutes();
+                SoundEngine.playTick();
                 if (currentTab === 'explore') {
                     speakCurrentTime();
                 }
             }
         }
 
-        // Attach Mouse & Touch Listeners to Clock Hands
-        minuteHandGroup.addEventListener('mousedown', (e) => startDrag(e, 'minute'));
-        hourHandGroup.addEventListener('mousedown', (e) => startDrag(e, 'hour'));
+        function syncFromTotalMinutes() {
+            // 0〜1439分の範囲にループ（24時間管理）
+            totalMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+            
+            const wasPM = isPM;
+            // 720分 (12:00) 以上なら PM (ごご)
+            isPM = totalMinutes >= 720;
+            
+            let h24 = Math.floor(totalMinutes / 60);
+            currentHours = h24 % 12;
+            if (currentHours === 0) currentHours = 12;
+            currentMinutes = Math.floor(totalMinutes % 60);
 
-        minuteHandGroup.addEventListener('touchstart', (e) => startDrag(e, 'minute'), { passive: false });
-        hourHandGroup.addEventListener('touchstart', (e) => startDrag(e, 'hour'), { passive: false });
+            // ドラッグ中に午前/午後は切り替わった場合、効果音で通知
+            if (wasPM !== isPM && (isDraggingHour || isDraggingMinute)) {
+                SoundEngine.playTick();
+            }
 
-        window.addEventListener('mousemove', handleDragMove);
-        window.addEventListener('touchmove', handleDragMove, { passive: false });
+            updateClockDisplay();
+        }
 
-        window.addEventListener('mouseup', stopDrag);
-        window.addEventListener('touchend', stopDrag);
+        function updateClockDisplay() {
+            const minuteHandGroup = document.getElementById('minuteHandGroup');
+            const hourHandGroup = document.getElementById('hourHandGroup');
+            if (!minuteHandGroup || !hourHandGroup) return;
 
-        /* Tab Switching Logic */
-        function switchTab(tab) {
-            currentTab = tab;
-            SoundEngine.playTick();
+            const minuteDeg = currentMinutes * 6;
+            const hourDeg = ((currentHours % 12) * 30) + (currentMinutes * 0.5);
 
-            // Reset Tab UI
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-sky-500', 'text-white', 'shadow-sm');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
-            });
+            minuteHandGroup.setAttribute('transform', `rotate(${minuteDeg}, 200, 200)`);
+            hourHandGroup.setAttribute('transform', `rotate(${hourDeg}, 200, 200)`);
 
-            const activeBtn = document.getElementById(`tab-${tab}`);
-            activeBtn.classList.add('bg-sky-500', 'text-white', 'shadow-sm');
-            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+            const amBtn = document.getElementById('amBtn');
+            const pmBtn = document.getElementById('pmBtn');
+            const badge = document.getElementById('digitalAmPmBadge');
+            const promptBox = document.getElementById('promptBox');
 
-            // Hide all game panels
-            document.getElementById('quickPresetPanel').classList.add('hidden');
-            document.getElementById('matchControls').classList.add('hidden');
-            document.getElementById('quizControls').classList.add('hidden');
-            document.getElementById('rewardsArea').classList.add('hidden');
+            if (isPM) {
+                amBtn.className = 'flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-slate-100 border-slate-300 text-slate-500 opacity-70';
+                pmBtn.className = 'flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-indigo-600 border-indigo-700 text-white shadow-md scale-105';
+                badge.className = 'bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold';
+                badge.textContent = '🌙 ごご (PM)';
+                promptBox.className = 'w-full bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-3 mb-4 text-center relative transition-all';
+            } else {
+                amBtn.className = 'flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-amber-400 border-amber-500 text-amber-950 shadow-md scale-105';
+                pmBtn.className = 'flex-1 py-2 px-3 rounded-2xl font-black text-xs transition border flex items-center justify-center space-x-1 bg-slate-100 border-slate-300 text-slate-500 opacity-70';
+                badge.className = 'bg-amber-400 text-amber-950 text-[10px] px-2 py-0.5 rounded-full font-extrabold';
+                badge.textContent = '☀️ ごぜん (AM)';
+                promptBox.className = 'w-full bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 mb-4 text-center relative transition-all';
+            }
 
-            if (tab === 'explore') {
-                document.getElementById('quickPresetPanel').classList.remove('hidden');
-                document.getElementById('mascotIcon').textContent = '🦉';
-                document.getElementById('promptText').textContent = 'はりを ひっぱって じかんを かえてみよう！';
-                updateClockDisplay();
-            } else if (tab === 'match') {
-                document.getElementById('matchControls').classList.remove('hidden');
-                document.getElementById('matchControls').classList.add('flex');
-                setupNewMatchQuestion();
-                updateClockDisplay();
-            } else if (tab === 'quiz') {
-                document.getElementById('quizControls').classList.remove('hidden');
-                document.getElementById('quizControls').classList.add('flex');
-                setupNewQuizQuestion();
-            } else if (tab === 'rewards') {
-                document.getElementById('rewardsArea').classList.remove('hidden');
-                document.getElementById('rewardsArea').classList.add('flex');
-                document.getElementById('mascotIcon').textContent = '🎁';
-                document.getElementById('promptText').textContent = 'あつめた ★ で スタンプを ゲットしよう！';
-                renderStampsGrid();
-                updateClockDisplay();
+            const digitalEl = document.getElementById('digitalDisplay');
+            const sub24El = document.getElementById('digital24Sub');
+            const hiraEl = document.getElementById('hiraganaReading');
+
+            let h24 = isPM ? (currentHours === 12 ? 12 : currentHours + 12) : (currentHours === 12 ? 0 : currentHours);
+
+            const formattedH12 = String(currentHours).padStart(2, '0');
+            const formattedH24 = String(h24).padStart(2, '0');
+            const formattedM = String(currentMinutes).padStart(2, '0');
+
+            if (currentTab === 'quiz') {
+                digitalEl.textContent = '??:??';
+                sub24El.textContent = '24じかん: ??:??';
+                hiraEl.textContent = 'とけいを よく みてね！';
+            } else {
+                digitalEl.textContent = `${formattedH12}:${formattedM}`;
+                sub24El.textContent = `24じかん: ${formattedH24}:${formattedM}`;
+                hiraEl.textContent = getTimeInHiragana(currentHours, currentMinutes, isPM);
             }
         }
 
-        /* Mode 2: Match Clock Game (あわせよう) */
+        function updateClockVisuals() {
+            const showMin = document.getElementById('toggleMinuteNums').checked;
+            const showZones = document.getElementById('toggleColorZones').checked;
+            const show24h = document.getElementById('toggle24HourNums').checked;
+
+            document.getElementById('minuteNumbersGroup').style.opacity = showMin ? '1' : '0';
+            document.getElementById('hourSectors').style.opacity = showZones ? '0.65' : '0';
+            document.getElementById('hour24NumbersGroup').style.opacity = show24h ? '1' : '0';
+        }
+
+        function setClockTime(hours, minutes, pm = false) {
+            let h12 = hours % 12;
+            totalMinutes = (pm ? h12 + 12 : h12) * 60 + minutes;
+            syncFromTotalMinutes();
+            SoundEngine.playTick();
+        }
+
+        function getClockAngle(e) {
+            const clockSvg = document.getElementById('clockSvg');
+            const rect = clockSvg.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = clientX - (rect.left + rect.width / 2);
+            const y = clientY - (rect.top + rect.height / 2);
+            let rad = Math.atan2(y, x);
+            let deg = rad * (180 / Math.PI) + 90;
+            if (deg < 0) deg += 360;
+            return deg;
+        }
+
+        function startDragHour(e) {
+            e.preventDefault();
+            isDraggingHour = true;
+            prevDragAngle = getClockAngle(e);
+            SoundEngine.init();
+        }
+
+        function startDragMinute(e) {
+            e.preventDefault();
+            isDraggingMinute = true;
+            prevDragAngle = getClockAngle(e);
+            SoundEngine.init();
+        }
+
+        function handleDragMove(e) {
+            if (!isDraggingHour && !isDraggingMinute) return;
+            e.preventDefault();
+
+            const deg = getClockAngle(e);
+            let delta = deg - prevDragAngle;
+
+            // 12時（360度 / 0度）の境界線を跨いだ場合の角度補正
+            if (delta < -180) delta += 360;
+            if (delta > 180) delta -= 360;
+
+            prevDragAngle = deg;
+
+            if (isDraggingMinute) {
+                // 長針: 360度 = 60分 (6度 = 1分)
+                let deltaMins = delta / 6;
+                totalMinutes += deltaMins;
+                syncFromTotalMinutes();
+            } else if (isDraggingHour) {
+                // 短針: 360度 = 720分 (12時間, 1度 = 2分)
+                let deltaMins = delta * 2;
+                totalMinutes += deltaMins;
+                syncFromTotalMinutes();
+            }
+        }
+
+        function stopDrag() {
+            if (isDraggingHour || isDraggingMinute) {
+                isDraggingHour = false;
+                isDraggingMinute = false;
+                // 離した時に最も近い整数の「分」にスナップ
+                totalMinutes = Math.round(totalMinutes);
+                syncFromTotalMinutes();
+                if (currentTab === 'explore') {
+                    speakCurrentTime();
+                }
+            }
+        }
+
         function setMatchDifficulty(diff) {
             matchDifficulty = diff;
             ['easy', 'medium', 'hard'].forEach(d => {
                 const btn = document.getElementById(`diff-${d}`);
                 if (d === diff) {
-                    btn.className = 'px-3 py-1 rounded-lg bg-white shadow-sm text-sky-600 font-bold';
+                    btn.className = 'px-3 py-1 rounded-lg bg-white shadow-sm text-sky-600 font-extrabold';
                 } else {
                     btn.className = 'px-3 py-1 rounded-lg text-slate-600 font-bold';
                 }
@@ -803,27 +836,31 @@
 
         function setupNewMatchQuestion() {
             targetHours = Math.floor(Math.random() * 12) + 1;
+            targetIsPM = Math.random() < 0.5;
 
             if (matchDifficulty === 'easy') {
                 targetMinutes = 0;
             } else if (matchDifficulty === 'medium') {
                 const opts = [0, 15, 30, 45];
                 targetMinutes = opts[Math.floor(Math.random() * opts.length)];
-            } else { // hard
+            } else {
                 targetMinutes = Math.floor(Math.random() * 12) * 5;
             }
 
-            // Set mascot text
-            const targetHiragana = getTimeInHiragana(targetHours, targetMinutes);
-            document.getElementById('mascotIcon').textContent = '🎯';
-            document.getElementById('promptText').textContent = `「${targetHiragana}」 に とけいを あわせよう！`;
+            // 問題開始時に初期位置を設定
+            setClockTime(12, 0, false);
 
-            speakCurrentTime(`「${targetHiragana}」に とけいを あわせてね`);
+            let targetH24 = targetIsPM ? (targetHours === 12 ? 12 : targetHours + 12) : (targetHours === 12 ? 0 : targetHours);
+            const amPmLabel = targetIsPM ? 'ごご' : 'ごぜん';
+
+            document.getElementById('mascotIcon').textContent = '🎯';
+            document.getElementById('promptText').textContent = `「${amPmLabel} ${getTimeInHiragana(targetHours, targetMinutes, targetIsPM).split('（')[0]}（${targetH24}:${String(targetMinutes).padStart(2, '0')}）」に あわせよう！`;
+
+            speakCurrentTime(`「${amPmLabel} ${targetHours}じ${targetMinutes > 0 ? targetMinutes + 'ふん' : ''}」に とけいを あわせてね`);
         }
 
         function checkMatchAnswer() {
-            if (currentHours === targetHours && currentMinutes === targetMinutes) {
-                // Correct!
+            if (currentHours === targetHours && currentMinutes === targetMinutes && isPM === targetIsPM) {
                 SoundEngine.playSuccess();
                 triggerConfetti();
                 addStars(1);
@@ -835,8 +872,12 @@
                 setTimeout(() => {
                     setupNewMatchQuestion();
                 }, 2200);
+            } else if (currentHours === targetHours && currentMinutes === targetMinutes && isPM !== targetIsPM) {
+                SoundEngine.playWrong();
+                document.getElementById('mascotIcon').textContent = '☀️/🌙';
+                document.getElementById('promptText').textContent = `「ごぜん」と「ごご」の ボタンを たしかめてね！`;
+                speakCurrentTime('ごぜんと ごごの ボタンを たしかめてね！');
             } else {
-                // Wrong
                 SoundEngine.playWrong();
                 document.getElementById('mascotIcon').textContent = '🤔';
                 document.getElementById('promptText').textContent = 'もういちど たしかめてみよう！';
@@ -844,67 +885,66 @@
             }
         }
 
-        /* Mode 3: Quiz Read Clock Game (なんじかな？) */
         function setupNewQuizQuestion() {
             quizTargetHours = Math.floor(Math.random() * 12) + 1;
             const minuteChoices = [0, 15, 30, 45];
             quizTargetMinutes = minuteChoices[Math.floor(Math.random() * minuteChoices.length)];
+            quizTargetIsPM = Math.random() < 0.5;
 
-            // Set Clock Hands
-            currentHours = quizTargetHours;
-            currentMinutes = quizTargetMinutes;
-            updateClockDisplay();
+            setClockTime(quizTargetHours, quizTargetMinutes, quizTargetIsPM);
 
             document.getElementById('mascotIcon').textContent = '❓';
-            document.getElementById('promptText').textContent = 'とけいは なんじを さしているかな？';
+            document.getElementById('promptText').textContent = 'とけいは なんじを さしているかな？ (24じかんひょうき も あるよ)';
 
-            // Generate 4 Multiple Choice Options
             const grid = document.getElementById('quizOptionsGrid');
             grid.innerHTML = '';
 
-            const correctOption = { h: quizTargetHours, m: quizTargetMinutes };
+            const correctOption = { h: quizTargetHours, m: quizTargetMinutes, pm: quizTargetIsPM };
             const options = [correctOption];
 
-            // Generate 3 wrong options
             while (options.length < 4) {
                 let hRand = Math.floor(Math.random() * 12) + 1;
                 let mRand = minuteChoices[Math.floor(Math.random() * minuteChoices.length)];
-                if (!options.some(o => o.h === hRand && o.m === mRand)) {
-                    options.push({ h: hRand, m: mRand });
+                let pmRand = Math.random() < 0.5;
+                if (!options.some(o => o.h === hRand && o.m === mRand && o.pm === pmRand)) {
+                    options.push({ h: hRand, m: mRand, pm: pmRand });
                 }
             }
 
-            // Shuffle Options
             options.sort(() => Math.random() - 0.5);
 
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = 'bg-sky-50 hover:bg-sky-100 active:scale-95 border-2 border-sky-200 text-sky-800 font-extrabold text-lg sm:text-xl py-3 rounded-2xl shadow-sm transition flex flex-col items-center justify-center';
+                btn.className = 'bg-sky-50 hover:bg-sky-100 active:scale-95 border-2 border-sky-200 text-sky-800 font-extrabold text-base sm:text-lg py-2.5 rounded-2xl shadow-sm transition flex flex-col items-center justify-center';
                 
-                const timeFormatted = `${String(opt.h).padStart(2, '0')}:${String(opt.m).padStart(2, '0')}`;
-                const hira = getTimeInHiragana(opt.h, opt.m);
+                let h24Opt = opt.pm ? (opt.h === 12 ? 12 : opt.h + 12) : (opt.h === 12 ? 0 : opt.h);
+                const timeFormatted24 = `${String(h24Opt).padStart(2, '0')}:${String(opt.m).padStart(2, '0')}`;
+                const prefix = opt.pm ? 'ごご' : 'ごぜん';
+                const timeFormatted12 = `${prefix} ${opt.h}:${String(opt.m).padStart(2, '0')}`;
 
                 btn.innerHTML = `
-                    <span>${timeFormatted}</span>
-                    <span class="text-xs font-bold text-sky-600">${hira}</span>
+                    <span class="text-lg text-indigo-900">${timeFormatted24}</span>
+                    <span class="text-xs font-bold text-slate-600">${timeFormatted12}</span>
                 `;
 
-                btn.onclick = () => handleQuizAnswer(opt.h, opt.m, btn);
+                btn.onclick = () => handleQuizAnswer(opt.h, opt.m, opt.pm, btn);
                 grid.appendChild(btn);
             });
         }
 
-        function handleQuizAnswer(selectedH, selectedM, btnEl) {
-            if (selectedH === quizTargetHours && selectedM === quizTargetMinutes) {
-                // Correct
+        function handleQuizAnswer(selectedH, selectedM, selectedPM, btnEl) {
+            if (selectedH === quizTargetHours && selectedM === quizTargetMinutes && selectedPM === quizTargetIsPM) {
                 btnEl.classList.remove('bg-sky-50', 'border-sky-200');
                 btnEl.classList.add('bg-emerald-500', 'border-emerald-600', 'text-white');
 
-                // 正解時にデジタル時計とひらがな読みを公開
-                const formattedH = String(quizTargetHours).padStart(2, '0');
+                let h24 = quizTargetIsPM ? (quizTargetHours === 12 ? 12 : quizTargetHours + 12) : (quizTargetHours === 12 ? 0 : quizTargetHours);
+                const formattedH12 = String(quizTargetHours).padStart(2, '0');
+                const formattedH24 = String(h24).padStart(2, '0');
                 const formattedM = String(quizTargetMinutes).padStart(2, '0');
-                document.getElementById('digitalDisplay').textContent = `${formattedH}:${formattedM}`;
-                document.getElementById('hiraganaReading').textContent = getTimeInHiragana(quizTargetHours, quizTargetMinutes);
+
+                document.getElementById('digitalDisplay').textContent = `${formattedH12}:${formattedM}`;
+                document.getElementById('digital24Sub').textContent = `24じかん: ${formattedH24}:${formattedM}`;
+                document.getElementById('hiraganaReading').textContent = getTimeInHiragana(quizTargetHours, quizTargetMinutes, quizTargetIsPM);
 
                 SoundEngine.playSuccess();
                 triggerConfetti();
@@ -918,7 +958,6 @@
                     setupNewQuizQuestion();
                 }, 2000);
             } else {
-                // Wrong
                 btnEl.classList.remove('bg-sky-50', 'border-sky-200');
                 btnEl.classList.add('bg-rose-100', 'border-rose-300', 'text-rose-600');
 
@@ -928,58 +967,67 @@
             }
         }
 
-        /* Star & Reward Stamp System */
-        function addStars(num) {
-            starCount += num;
-            document.getElementById('starCountDisplay').textContent = starCount;
-            // Pop animation on star box
-            const starBox = document.getElementById('starCountDisplay').parentElement;
-            starBox.classList.add('pop-in');
-            setTimeout(() => starBox.classList.remove('pop-in'), 300);
+        function switchTab(tab) {
+            currentTab = tab;
+
+            ['explore', 'match', 'quiz', 'rewards'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'tab-btn py-2.5 px-2 rounded-xl text-center font-bold text-xs sm:text-sm transition flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-1 bg-sky-500 text-white shadow-sm';
+                } else {
+                    btn.className = 'tab-btn py-2.5 px-2 rounded-xl text-center font-bold text-xs sm:text-sm text-slate-600 hover:bg-slate-100 transition flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-1';
+                }
+            });
+
+            document.getElementById('matchControls').style.display = tab === 'match' ? 'flex' : 'none';
+            document.getElementById('quizControls').style.display = tab === 'quiz' ? 'flex' : 'none';
+            document.getElementById('rewardsArea').style.display = tab === 'rewards' ? 'flex' : 'none';
+            document.getElementById('quickPresetPanel').style.display = tab === 'explore' ? 'block' : 'none';
+
+            if (tab === 'explore') {
+                document.getElementById('mascotIcon').textContent = '🦉';
+                document.getElementById('promptText').textContent = 'はりを ひっぱって じかんを かえてみよう！';
+                updateClockDisplay();
+            } else if (tab === 'match') {
+                setupNewMatchQuestion();
+            } else if (tab === 'quiz') {
+                setupNewQuizQuestion();
+            } else if (tab === 'rewards') {
+                renderStamps();
+            }
         }
 
-        function renderStampsGrid() {
+        function addStars(count) {
+            starCount += count;
+            document.getElementById('starCountDisplay').textContent = starCount;
+
+            stamps.forEach(s => {
+                if (starCount >= s.cost) s.unlocked = true;
+            });
+        }
+
+        function renderStamps() {
             const grid = document.getElementById('stampsGrid');
             grid.innerHTML = '';
 
-            stamps.forEach(stamp => {
+            stamps.forEach(s => {
                 const card = document.createElement('div');
-                const isUnlocked = stamp.unlocked || starCount >= stamp.cost;
-
-                card.className = `p-3 rounded-2xl flex flex-col items-center justify-center border-2 transition ${
-                    stamp.unlocked
-                        ? 'bg-amber-50 border-amber-300 shadow-md'
-                        : isUnlocked
-                        ? 'bg-emerald-50 border-emerald-300 cursor-pointer animate-pulse'
-                        : 'bg-slate-100 border-slate-200 opacity-60'
+                card.className = `flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition ${
+                    s.unlocked ? 'bg-amber-50 border-amber-300 shadow-md scale-105' : 'bg-slate-100 border-slate-200 opacity-50 grayscale'
                 }`;
 
                 card.innerHTML = `
-                    <div class="text-3xl mb-1">${stamp.unlocked ? stamp.emoji : (isUnlocked ? '🎁' : '🔒')}</div>
-                    <div class="text-xs font-black text-slate-700">${stamp.name}</div>
-                    <div class="text-[10px] font-bold ${stamp.unlocked ? 'text-amber-600' : 'text-slate-500'} mt-1">
-                        ${stamp.unlocked ? 'ゲット！' : `★ ${stamp.cost}`}
-                    </div>
+                    <span class="text-3xl mb-1">${s.unlocked ? s.emoji : '🔒'}</span>
+                    <span class="text-xs font-bold text-slate-700">${s.name}</span>
+                    <span class="text-[10px] font-extrabold text-amber-600 mt-0.5">★ ${s.cost}</span>
                 `;
-
-                if (!stamp.unlocked && isUnlocked) {
-                    card.onclick = () => unlockStamp(stamp);
-                }
-
                 grid.appendChild(card);
             });
         }
 
-        function unlockStamp(stamp) {
-            stamp.unlocked = true;
-            SoundEngine.playSuccess();
-            triggerConfetti();
-            renderStampsGrid();
-        }
-
-        /* Lightweight Self-contained Canvas Confetti */
         function triggerConfetti() {
             const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -992,11 +1040,10 @@
                     x: canvas.width / 2,
                     y: canvas.height / 2,
                     vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 0.8) * 12,
+                    vy: (Math.random() - 0.7) * 12,
                     size: Math.random() * 8 + 4,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    alpha: 1,
-                    decay: Math.random() * 0.02 + 0.01
+                    life: 1
                 });
             }
 
@@ -1007,18 +1054,16 @@
                 particles.forEach(p => {
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += 0.3; // Gravity
-                    p.alpha -= p.decay;
+                    p.vy += 0.2;
+                    p.life -= 0.02;
 
-                    if (p.alpha > 0) {
+                    if (p.life > 0) {
                         alive = true;
-                        ctx.save();
-                        ctx.globalAlpha = Math.max(0, p.alpha);
+                        ctx.globalAlpha = p.life;
                         ctx.fillStyle = p.color;
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                         ctx.fill();
-                        ctx.restore();
                     }
                 });
 
@@ -1032,29 +1077,29 @@
             animateConfetti();
         }
 
-        /* Audio & Sound Toggle Handlers */
-        function toggleVoice() {
-            voiceEnabled = !voiceEnabled;
-            document.getElementById('voiceIcon').textContent = voiceEnabled ? '🔊' : '🔇';
-            document.getElementById('voiceToggleBtn').classList.toggle('bg-slate-200');
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            SoundEngine.enabled = soundEnabled;
-            document.getElementById('soundIcon').textContent = soundEnabled ? '🎵' : '🔇';
-            document.getElementById('soundToggleBtn').classList.toggle('bg-slate-200');
-        }
-
-        /* Initialize Application */
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             initClockGraphics();
             updateClockDisplay();
             updateClockVisuals();
 
-            // Initial friendly prompt
-            speakCurrentTime('とけい マスターへ ようこそ！ はりを うごかしてみよう！');
-        };
+            const hourHandGroup = document.getElementById('hourHandGroup');
+            const minuteHandGroup = document.getElementById('minuteHandGroup');
+
+            if (hourHandGroup) {
+                hourHandGroup.addEventListener('mousedown', startDragHour);
+                hourHandGroup.addEventListener('touchstart', startDragHour, { passive: false });
+            }
+
+            if (minuteHandGroup) {
+                minuteHandGroup.addEventListener('mousedown', startDragMinute);
+                minuteHandGroup.addEventListener('touchstart', startDragMinute, { passive: false });
+            }
+
+            window.addEventListener('mousemove', handleDragMove);
+            window.addEventListener('touchmove', handleDragMove, { passive: false });
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchend', stopDrag);
+        });
     </script>
 </body>
 </html>
