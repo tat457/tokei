@@ -851,12 +851,12 @@
             setClockTime(12, 0, false);
 
             let targetH24 = targetIsPM ? (targetHours === 12 ? 12 : targetHours + 12) : (targetHours === 12 ? 0 : targetHours);
-            const amPmLabel = targetIsPM ? 'ごご' : 'ごぜん';
+            const hiraganaText = getTimeInHiragana(targetHours, targetMinutes, targetIsPM).split('（')[0];
 
             document.getElementById('mascotIcon').textContent = '🎯';
-            document.getElementById('promptText').textContent = `「${amPmLabel} ${getTimeInHiragana(targetHours, targetMinutes, targetIsPM).split('（')[0]}（${targetH24}:${String(targetMinutes).padStart(2, '0')}）」に あわせよう！`;
+            document.getElementById('promptText').textContent = `「${hiraganaText}（${String(targetH24).padStart(2, '0')}:${String(targetMinutes).padStart(2, '0')}）」に あわせよう！`;
 
-            speakCurrentTime(`「${amPmLabel} ${targetHours}じ${targetMinutes > 0 ? targetMinutes + 'ふん' : ''}」に とけいを あわせてね`);
+            speakCurrentTime(`「${hiraganaText}」に とけいを あわせてね`);
         }
 
         function checkMatchAnswer() {
